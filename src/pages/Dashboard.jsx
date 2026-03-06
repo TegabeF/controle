@@ -48,6 +48,7 @@ export default function Dashboard() {
     // Stats
     const totalEntregadores = entregadores.length
     const totalComCorridas = entregadores.filter(e => e.total_corridas_completadas > 0).length
+    const totalAtivos = entregadores.filter(e => e.data_ativacao).length
     const pracas = [...new Set(entregadores.map(e => e.praca).filter(Boolean))]
     const totalCorridas = entregadores.reduce((acc, e) => acc + (Number(e.total_corridas_completadas) || 0), 0)
 
@@ -84,6 +85,11 @@ export default function Dashboard() {
                     <div className="stat-card-icon">👥</div>
                     <div className="stat-card-value">{totalEntregadores}</div>
                     <div className="stat-card-label">Total de Entregadores</div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-card-icon">✅</div>
+                    <div className="stat-card-value">{totalAtivos}</div>
+                    <div className="stat-card-label">Entregadores Ativos (≥30)</div>
                 </div>
                 <div className="stat-card">
                     <div className="stat-card-icon">🚴</div>
@@ -136,6 +142,7 @@ export default function Dashboard() {
                                 <th>1ª Data no Relatório</th>
                                 <th>Rodou Dia</th>
                                 <th>Última Entrega</th>
+                                <th>Ativação (≥30)</th>
                                 <th>Corridas</th>
                             </tr>
                         </thead>
@@ -151,6 +158,9 @@ export default function Dashboard() {
                                         {formatDate(e.rodou_dia)}
                                     </td>
                                     <td className="cell-date">{formatDate(e.ultima_entrega)}</td>
+                                    <td className={e.data_ativacao ? 'cell-date-highlight' : 'cell-date'}>
+                                        {e.data_ativacao ? formatDate(e.data_ativacao) : '—'}
+                                    </td>
                                     <td className="cell-name">{e.total_corridas_completadas ?? 0}</td>
                                 </tr>
                             ))}
