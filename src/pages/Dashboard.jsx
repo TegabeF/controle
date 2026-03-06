@@ -21,8 +21,7 @@ export default function Dashboard() {
     const fetchData = async () => {
         setLoading(true)
         const { data, error } = await supabase
-            .from('entregadores_resumo')
-            .select('*')
+            .rpc('get_entregadores_resumo')
 
         if (error) {
             console.error('Erro ao buscar dados:', error)
