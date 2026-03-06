@@ -11,6 +11,8 @@ export default function Dashboard() {
     const [entregadores, setEntregadores] = useState([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
+    const [dateFrom, setDateFrom] = useState('')
+    const [dateTo, setDateTo] = useState('')
     const [page, setPage] = useState(1)
     const perPage = 15
 
@@ -32,14 +34,23 @@ export default function Dashboard() {
     }
 
     const filtered = entregadores.filter(e => {
-        if (!search) return true
-        const q = search.toLowerCase()
-        return (
-            e.nome_entregador?.toLowerCase().includes(q) ||
-            e.id_entregador?.toLowerCase().includes(q) ||
-            e.praca?.toLowerCase().includes(q) ||
-            e.sub_praca?.toLowerCase().includes(q)
-        )
+        // Filtro de texto
+        if (search) {
+            const q = search.toLowerCase()
+            const match = (
+                e.nome_entregador?.toLowerCase().includes(q) ||
+                e.id_entregador?.toLowerCase().includes(q) ||
+                e.praca?.toLowerCase().includes(q) ||
+                e.sub_praca?.toLowerCase().includes(q)
+            )
+            if (!match) return false
+        }
+        // Filtro de data (Rodou Dia)
+        if (dateFrom && e.rodou_dia && e.rodou_dia < dateFrom) return false
+        if (dateTo && e.rodou_dia && e.rodou_dia > dateTo) return false
+        // Se tem filtro de data mas entregador não tem rodou_dia, esconder
+        if ((dateFrom || dateTo) && !e.rodou_dia) return false
+        return true
     })
 
     const totalPages = Math.ceil(filtered.length / perPage)
@@ -52,10 +63,10 @@ export default function Dashboard() {
     const pracas = [...new Set(entregadores.map(e => e.praca).filter(Boolean))]
     const totalCorridas = entregadores.reduce((acc, e) => acc + (Number(e.total_corridas_completadas) || 0), 0)
 
-    // Reset to page 1 when search changes
+    // Reset to page 1 when filters change
     useEffect(() => {
         setPage(1)
-    }, [search])
+    }, [search, dateFrom, dateTo])
 
     if (loading) {
         return (
@@ -121,14 +132,55 @@ export default function Dashboard() {
                 <div className="table-container">
                     <div className="table-header">
                         <h2 className="table-title">Entregadores</h2>
-                        <div className="table-search">
-                            <span className="table-search-icon">🔍</span>
-                            <input
-                                type="text"
-                                placeholder="Buscar por nome, ID, praça..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
+                        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                            <div className="table-search">
+                                <span className="table-search-icon">🔍</span>
+                                <input
+                                    type="text"
+                                    placeholder="Buscar por nome, ID, praça..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500 }}>Rodou Dia:</span>
+                                <input
+                                    type="date"
+                                    value={dateFrom}
+                                    onChange={(e) => setDateFrom(e.target.value)}
+                                    style={{
+                                        background: 'var(--bg-input)', border: '1px solid var(--border)',
+                                        borderRadius: 'var(--radius-sm)', padding: '0.4rem 0.6rem',
+                                        color: 'var(--text-primary)', fontSize: '0.8rem', fontFamily: 'inherit',
+                                        outline: 'none'
+                                    }}
+                                />
+                                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>até</span>
+                                <input
+                                    type="date"
+                                    value={dateTo}
+                                    onChange={(e) => setDateTo(e.target.value)}
+                                    style={{
+                                        background: 'var(--bg-input)', border: '1px solid var(--border)',
+                                        borderRadius: 'var(--radius-sm)', padding: '0.4rem 0.6rem',
+                                        color: 'var(--text-primary)', fontSize: '0.8rem', fontFamily: 'inherit',
+                                        outline: 'none'
+                                    }}
+                                />
+                                {(dateFrom || dateTo) && (
+                                    <button
+                                        onClick={() => { setDateFrom(''); setDateTo('') }}
+                                        style={{
+                                            background: 'var(--error-bg)', border: '1px solid rgba(239,68,68,0.2)',
+                                            borderRadius: 'var(--radius-sm)', padding: '0.4rem 0.6rem',
+                                            color: 'var(--error)', fontSize: '0.75rem', fontFamily: 'inherit',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        ✕ Limpar
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
 
