@@ -107,13 +107,13 @@ export default function Upload() {
                 return mapped
             })
 
-            // Upload in batches of 500
-            const batchSize = 500
+            // Upload in batches via RPC
+            const batchSize = 200
             const totalBatches = Math.ceil(mappedRows.length / batchSize)
 
             for (let i = 0; i < totalBatches; i++) {
                 const batch = mappedRows.slice(i * batchSize, (i + 1) * batchSize)
-                const { error } = await supabase.from('entregas_raw').insert(batch)
+                const { error } = await supabase.rpc('bulk_insert_entregas', { dados: batch })
 
                 if (error) {
                     setStatus({ type: 'error', message: `Erro no lote ${i + 1}: ${error.message}` })
