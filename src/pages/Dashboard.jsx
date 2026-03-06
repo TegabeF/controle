@@ -56,12 +56,12 @@ export default function Dashboard() {
     const totalPages = Math.ceil(filtered.length / perPage)
     const paginated = filtered.slice((page - 1) * perPage, page * perPage)
 
-    // Stats
-    const totalEntregadores = entregadores.length
-    const totalComCorridas = entregadores.filter(e => e.total_corridas_completadas > 0).length
-    const totalAtivos = entregadores.filter(e => e.data_ativacao).length
-    const pracas = [...new Set(entregadores.map(e => e.praca).filter(Boolean))]
-    const totalCorridas = entregadores.reduce((acc, e) => acc + (Number(e.total_corridas_completadas) || 0), 0)
+    // Stats (baseados nos dados filtrados)
+    const totalEntregadores = filtered.length
+    const totalComCorridas = filtered.filter(e => e.total_corridas_completadas > 0).length
+    const totalAtivos = filtered.filter(e => e.data_ativacao).length
+    const pracas = [...new Set(filtered.map(e => e.praca).filter(Boolean))]
+    const totalCorridas = filtered.reduce((acc, e) => acc + (Number(e.total_corridas_completadas) || 0), 0)
 
     // Reset to page 1 when filters change
     useEffect(() => {
